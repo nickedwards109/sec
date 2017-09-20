@@ -1,5 +1,5 @@
 class Api::V1::SecretMessagesController < AuthenticationController
   def show
-    render json: { description: "secret message placeholder" }
+    render json: { message: "secret message placeholder" }
   end
 end

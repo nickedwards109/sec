@@ -27,7 +27,7 @@ describe 'Secret messages API' do
     correct_signature = '90aa7d0c79677d86800500f6c999a6273544169f3912322c5e48174b58fb90dc'
     get '/api/v1/secret_messages/1.json', headers: { 'Authorization' => correct_signature }
 
-    secret_message = JSON.parse(response.body)["description"]
+    secret_message = JSON.parse(response.body)["message"]
 
     expect(secret_message.class).to equal(String)
     expect(response).to have_http_status(200)
