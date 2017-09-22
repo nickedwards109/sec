@@ -1,3 +1,5 @@
+require './lib/encryption'
+
 class Api::V1::SecretMessagesController < AuthenticationController
   include Encryption
   def show

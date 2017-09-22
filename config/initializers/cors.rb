@@ -4,6 +4,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource '*',
       headers: :any,
-      methods: [:get]
+      expose: :initialization_vector,
+      methods: :get
   end
 end
