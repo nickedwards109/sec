@@ -13,7 +13,7 @@ describe 'encryption module' do
     result = encrypt(data)
 
     expect(result.class).to equal(Hash)
-    expect(result[:cipher]).to eql('2d8c5aa513c04092ae3811f9a7dde8286e00badeb8310907c64da9c7289ed74734f4246a8c49f088ebea3d7d154604f5')
+    expect(result[:message]).to eql('2d8c5aa513c04092ae3811f9a7dde8286e00badeb8310907c64da9c7289ed74734f4246a8c49f088ebea3d7d154604f5')
     expect(result[:initialization_vector]).to eql('35cd6e2b82b6537d')
   end
 
@@ -28,7 +28,7 @@ describe 'encryption module' do
     expect(result1[:initialization_vector].class).to equal(String)
     expect(result1[:initialization_vector].length).to equal(16)
 
-    result2= encrypt(data)
+    result2 = encrypt(data)
 
     expect(result2).not_to eql(result1)
   end

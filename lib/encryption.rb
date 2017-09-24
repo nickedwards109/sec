@@ -17,6 +17,6 @@ module Encryption
     # convert that data into a string of hex characters
     encrypted_hex = encrypted.unpack('H*')[0]
 
-    { cipher: encrypted_hex, initialization_vector: initialization_vector }
+    { message: encrypted_hex, initialization_vector: initialization_vector }
   end
 end

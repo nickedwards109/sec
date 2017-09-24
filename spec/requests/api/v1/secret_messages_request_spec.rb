@@ -65,9 +65,9 @@ describe 'Secret messages API' do
     correct_signature = '90aa7d0c79677d86800500f6c999a6273544169f3912322c5e48174b58fb90dc'
     get '/api/v1/secret_messages/1.json', headers: { 'Authorization' => correct_signature }
 
-    response_initialization_vector = response.headers["initialization_vector"]
-    response_body = JSON.parse(response.body)
-    response_cipher = response_body["message"]
+    raw_response = JSON.parse(response.body)
+    response_cipher = raw_response["message"]
+    response_initialization_vector = raw_response["initialization_vector"]
 
     expected_response_cipher = "2d8c5aa513c04092ae3811f9a7dde8286e00badeb8310907c64da9c7289ed74734f4246a8c49f088ebea3d7d154604f5"
     expect(response_cipher).to eql(expected_response_cipher)
