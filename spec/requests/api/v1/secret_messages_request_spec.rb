@@ -34,10 +34,12 @@ describe 'Secret messages API' do
     correct_signature = '90aa7d0c79677d86800500f6c999a6273544169f3912322c5e48174b58fb90dc'
     get '/api/v1/secret_messages/1.json', headers: { 'Authorization' => correct_signature }
 
-    secret_message = JSON.parse(response.body)["message"]
+    raw_message = JSON.parse(response.body)
+    message = raw_message.first["message"]
 
-    expect(secret_message.class).to equal(String)
     expect(response).to have_http_status(200)
+    expect(raw_message.class).to equal(Array)
+    expect(message.class).to equal(String)
   end
 
   it 'responds to an authenticated request for all secret message resources' do
@@ -51,12 +53,18 @@ describe 'Secret messages API' do
     expect(response).to have_http_status(200)
 
     raw_messages = JSON.parse(response.body)
-    expect(raw_messages.class).to equal(Hash)
-    expect(raw_messages["1"].class).to equal(Hash)
-    expect(raw_messages["1"].keys).to include("message")
-    expect(raw_messages["1"]["message"].class).to equal(String)
-    expect(raw_messages["1"].keys).to include("initialization_vector")
-    expect(raw_messages["1"]["initialization_vector"].class).to equal(String)
+    expect(raw_messages.class).to equal(Array)
+    expect(raw_messages[0].class).to equal(Hash)
+    expect(raw_messages[0].keys).to include("message")
+    expect(raw_messages[0]["message"].class).to equal(String)
+    expect(raw_messages[0].keys).to include("initialization_vector")
+    expect(raw_messages[0]["initialization_vector"].class).to equal(String)
+
+    expect(raw_messages[1].class).to equal(Hash)
+    expect(raw_messages[1].keys).to include("message")
+    expect(raw_messages[1]["message"].class).to equal(String)
+    expect(raw_messages[1].keys).to include("initialization_vector")
+    expect(raw_messages[1]["initialization_vector"].class).to equal(String)
   end
 
   it 'encrypts the response body with AES-256-CBC and sends the initialization vector' do
@@ -66,8 +74,8 @@ describe 'Secret messages API' do
     get '/api/v1/secret_messages/1.json', headers: { 'Authorization' => correct_signature }
 
     raw_response = JSON.parse(response.body)
-    response_cipher = raw_response["message"]
-    response_initialization_vector = raw_response["initialization_vector"]
+    response_cipher = raw_response.first["message"]
+    response_initialization_vector = raw_response.first["initialization_vector"]
 
     expected_response_cipher = "2d8c5aa513c04092ae3811f9a7dde8286e00badeb8310907c64da9c7289ed74734f4246a8c49f088ebea3d7d154604f5"
     expect(response_cipher).to eql(expected_response_cipher)
