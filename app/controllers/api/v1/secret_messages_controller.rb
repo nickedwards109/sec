@@ -10,12 +10,12 @@ class Api::V1::SecretMessagesController < AuthenticationController
       encryption_output = encrypt(secret_message.message)
       response_body.push encryption_output
     end
-    render json: response_body
+    render json: {"messages" => response_body}
   end
 
   def show
     message = SecretMessage.find(params[:id]).message
     encryption_output = encrypt(message)
-    render json: [encryption_output]
+    render json: {"messages" => [encryption_output]}
   end
 end
