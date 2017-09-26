@@ -43,9 +43,11 @@ describe 'Secret messages API' do
     expect(raw_message["messages"][0].class).to equal(Hash)
     expect(raw_message["messages"][0]["message"].class).to equal(String)
     expect(raw_message["messages"][0]["initialization_vector"].class).to equal(String)
+    expect(raw_message["messages"][0]["signature"].class).to equal(String)
+    expect(raw_message["messages"][0]["signature"]).to eql('b255de9b3d2342f43c97ec1ec94f9fc8744512a31f6ae85fbc80b33da5596952')
   end
 
-  it 'responds to an authenticated request for all secret message resources' do
+ it 'responds to an authenticated request for all secret message resources' do
     # Similarly to the spec for requesting a single resource, this signature is
     #  a SHA-256 HMAC of the following request line:
     #  'GET http://localhost:3000/api/v1/secret_messages.json HTTP/1.1'
@@ -59,16 +61,16 @@ describe 'Secret messages API' do
     expect(raw_messages.class).to equal(Hash)
     expect(raw_messages["messages"].class).to equal(Array)
     expect(raw_messages["messages"][0].class).to equal(Hash)
-    expect(raw_messages["messages"][0].keys).to include("message")
     expect(raw_messages["messages"][0]["message"].class).to equal(String)
-    expect(raw_messages["messages"][0].keys).to include("initialization_vector")
     expect(raw_messages["messages"][0]["initialization_vector"].class).to equal(String)
+    expect(raw_messages["messages"][0]["signature"].class).to equal(String)
+    expect(raw_messages["messages"][0]["signature"]).to eql("b255de9b3d2342f43c97ec1ec94f9fc8744512a31f6ae85fbc80b33da5596952")
 
     expect(raw_messages["messages"][1].class).to equal(Hash)
-    expect(raw_messages["messages"][1].keys).to include("message")
     expect(raw_messages["messages"][1]["message"].class).to equal(String)
-    expect(raw_messages["messages"][1].keys).to include("initialization_vector")
     expect(raw_messages["messages"][1]["initialization_vector"].class).to equal(String)
+    expect(raw_messages["messages"][1]["signature"].class).to equal(String)
+    expect(raw_messages["messages"][1]["signature"]).to eql("5ee297e4900e7f0e4102e7b6b6b9b00e0e48fd37336e8fcc7f7aa3b41c444033")
   end
 
   it 'encrypts the response body with AES-256-CBC and sends the initialization vector' do
