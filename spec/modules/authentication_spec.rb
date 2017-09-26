@@ -55,4 +55,10 @@ describe 'authentication module' do
     @request.fullpath = '/api/v1/secret_messages/1.json'
     expect(authenticated?(@request)).to be_falsy
   end
+
+  it 'generates a digital signature from a message' do
+    ENV['key'] = 'ff5c66433974329a675b114f27799251821c6830f0aa69cbb62cfcce6c6cd20f864494873c0e513a2033f650f357ef2cc9818b6541bf5625d3a4ee374e254b1e'
+    message = "There's always money in the banana stand."
+    expect(generate_signature(message)).to eql("b255de9b3d2342f43c97ec1ec94f9fc8744512a31f6ae85fbc80b33da5596952")
+  end
 end
