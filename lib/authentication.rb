@@ -22,4 +22,10 @@ module Authentication
 
     expected_signature == actual_signature
   end
+
+  def generate_signature(message)
+    key = ENV['key']
+    digest = OpenSSL::Digest.new('sha256')
+    OpenSSL::HMAC.hexdigest(digest, key, message)
+  end
 end
