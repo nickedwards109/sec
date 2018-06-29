@@ -1,20 +1,23 @@
-This is an API that will send encrypted messages as responses to authenticated HTTP requests. The client-side repository is [here](https://github.com/nickedwards109/secret-message-client). This README is replicated there as well.
+This is a server-side application that securely serves up secret messages to an authenticated client. The client-side repository is [here](https://github.com/nickedwards109/secure-client).
 
-This API will authenticate requests using a SHA-256 Hash-based Message Authentication Code algorithm, and the HTTP response body will be encrypted with the Advanced Encryption Standard algorithm. In order for the server to respond with an HTTP 200 response, the request will need to be signed according to the following scheme:
+In this context, 'securely' means that the client authenticates each HTTP request, and the server encrypts and authenticates each response. This scheme ensures that only an authenticated client can access data on the server. It also ensures that an eavesdropper on the wire cannot intercept the HTTP response and access the requested data. It also allows the client to verify the integrity of the data it receives, ensuring that an attacker cannot intercept the HTTP response and modify the data unknown to the client.
 
-1. The client will have access to a secret key that is practically impossible to guess, and is known to both the client and the server, but is not known to anyone else. This will probably be achieved by setting the key as a [Rails secret key](https://github.com/rails/rails/blob/7f18ea14c893cb5c9f04d4fda9661126758332b5/railties/lib/rails/tasks/misc.rake#L2) that is stored as an environment variable on the hosts of both the client-side and server-side applications. Ensuring that absolutely nobody else knows the key is outside the scope of this project.
-2. The client will generate a digital signature by hashing the request line of its HTTP GET request using an implementation of SHA-256 HMAC and the key from step 1.
-3. The client will include an Authorization header in the GET request with the value set as the HMAC resulting from step 2. Unfortunately, we are talking about authentication, not authorization, but it seems to be a web standard to call the header 'Authorization'. See the AWS S3 docs on [Signing and Authenticating REST Requests](http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html), which uses a similar scheme.
-4. The server will use the same key to generate an HMAC from the request line, and then compare the resulting HMAC to the value of the Authorization header. If they match, the server will conclude that the client has authenticated properly.
+A successful HTTP request and response depends on the client and server both having access to the same secret key. The process looks like this:
 
-This scheme ensures that the client has access to the key, and is thus the entity they say they are. It also ensures that the request has not been tampered with in transit between the client and the server.
+*Client sends a request*  
+1. The client generates a digital signature by hashing the request line of its HTTP GET request using SHA-256 and the secret key. This digital signature can also be referred to as a Hash-Based Message Authentication Code, or HMAC.  
+2. The client includes an Authorization header in the GET request with the value set as the HMAC from step 1.  
 
-If the client does not authenticate successfully, the server will respond with an HTTP 404 Not Found with an empty body (this provides minimal information to a potential attacker).
+*Server processes the request*  
+3. The server uses the secret key to generate an HMAC from the request line, and then compares the resulting HMAC to the value of the request's Authorization header. If they match, the server concludes that the client has authenticated properly.  
 
-If the client authenticates successfully, the server will encrypt the requested data using AES-256-CBC and the same key as before. The server will set the resulting string as the body of an HTTP 200 response. The server will also sign the request using steps 1-4 above (with 'client' replaced with 'server' in those steps).
+*Server sends a response*  
+4. The server encrypts the requested data using AES-256-CBC and the secret key.  
+5. The server sets the resulting string as the body of an HTTP 200 response.  
+6. The server generates an HMAC by hashing the requested data using SHA-256 and the secret key.  
+7. The server includes an Authorization header in the HTTP response with the value set as the HMAC from step 6.  
 
-This response format ensures that an attacker who eavesdrops on the request would not be able to retrieve the secret message. It also ensures to the client that the response did indeed come from the correct server and was not tampered with during transit.
-
-When the client receives the response and checks the signature, it will decrypt the data and render it in the browser if the signature is valid, and it will render nothing in the browser if the signature is invalid.
-
-Check again later for more updates!
+*Client processes the response*  
+8. The client receives the 200 response and decrypts the response body using the secret key.  
+9. The client uses the secret key to generate an HMAC from the unencrypted response body. The client compares this HMAC to the value of the response's Authorization header. If they match, the client concludes that the response was not tampered with in transit.  
+10. The client renders the message in the browser.  
